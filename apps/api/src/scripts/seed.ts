@@ -7,6 +7,7 @@ import { AppDataSource } from "../data-source";
 import { Photo } from "../entities/photo.entity";
 import { Profile, GENDERS, INTENTIONS, SEEKING } from "../entities/profile.entity";
 import { User } from "../entities/user.entity";
+import { resolveExactName } from "../services/cities.service";
 import { config } from "../config";
 
 /**
@@ -36,7 +37,7 @@ type SeedUser = {
 const USERS: SeedUser[] = [
   {
     email: "alice@tipiment.test", role: "user", emailVerified: true, birthDate: "1996-04-12",
-    profile: { displayName: "Alice", intention: "relation_serieuse", gender: "femme", seeking: "tous", commune: "Saint-Denis", bio: "Plutôt montagne que plage." },
+    profile: { displayName: "Alice", intention: "relation_serieuse", gender: "femme", seeking: "tous", commune: "Toulon", bio: "Plutôt montagne que plage." },
     colors: ["#e76f51", "#f4a261"],
   },
   {
@@ -51,12 +52,12 @@ const USERS: SeedUser[] = [
   },
   {
     email: "charlie@tipiment.test", role: "user", emailVerified: false, birthDate: "1994-01-05",
-    profile: { displayName: "Charlie", intention: "relation_serieuse", gender: "homme", seeking: "tous", commune: "Lille", bio: "Non vérifié — gate email." },
+    profile: { displayName: "Charlie", intention: "relation_serieuse", gender: "homme", seeking: "tous", commune: "Angers", bio: "Non vérifié — gate email." },
     colors: ["#6d597a", "#b56576"],
   },
   {
     email: "admin@tipiment.test", role: "admin", emailVerified: true, birthDate: "1988-07-07",
-    profile: { displayName: "Admin", intention: "a_voir", gender: "autre", seeking: "tous", commune: "Bordeaux", bio: "Compte back-office." },
+    profile: { displayName: "Admin", intention: "a_voir", gender: "autre", seeking: "tous", commune: "Nice", bio: "Compte back-office." },
     colors: ["#355070", "#6d597a"],
   },
 ];
@@ -104,6 +105,8 @@ async function main(): Promise<void> {
         lastActiveAt: new Date(),
       });
       await userRepo.save(user);
+      // résolution INSEE (geo.api.gouv.fr) : si indisponible, commune_insee reste null (distance inconnue)
+      const city = await resolveExactName(u.profile.commune).catch(() => null);
       const profile = await AppDataSource.getRepository(Profile).save(
         AppDataSource.getRepository(Profile).create({
           userId: user.id,
@@ -112,6 +115,7 @@ async function main(): Promise<void> {
           gender: u.profile.gender,
           seeking: u.profile.seeking,
           commune: u.profile.commune,
+          communeInsee: (await city)?.insee ?? null,
           bio: u.profile.bio,
           completedAt: new Date(),
         }),
