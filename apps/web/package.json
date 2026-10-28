@@ -1,0 +1,20 @@
+{
+  "name": "@tipiment/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@solidjs/router": "^0.15.3",
+    "@tipiment/shared": "workspace:*",
+    "solid-js": "^1.9.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vite-plugin-solid": "^2.11.6"
+  }
+}

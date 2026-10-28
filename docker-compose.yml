@@ -1,0 +1,32 @@
+name: tipiment
+services:
+  postgres:
+    image: postgres:16
+    container_name: tipiment-postgres
+    environment:
+      POSTGRES_USER: tipiment
+      POSTGRES_PASSWORD: tipiment
+      POSTGRES_DB: tipiment
+    ports:
+      - "5477:5432"
+    volumes:
+      - tipiment_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tipiment -d tipiment"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: tipiment-redis
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  tipiment_pgdata:

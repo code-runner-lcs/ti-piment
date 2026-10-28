@@ -1,0 +1,21 @@
+{
+  "name": "tipiment",
+  "private": true,
+  "packageManager": "pnpm@10.24.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"pnpm --filter @tipiment/api dev\" \"pnpm --filter @tipiment/web dev\"",
+    "typecheck": "pnpm -r typecheck",
+    "migration:run": "pnpm --filter @tipiment/api migration:run"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}
