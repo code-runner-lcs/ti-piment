@@ -1,0 +1,22 @@
+# Dépendances & builds
+node_modules/
+dist/
+build/
+coverage/
+
+# Environnement & secrets (le template .env.example doit être committé, jamais les vrais)
+.env
+.env.*
+!.env.example
+
+# Données runtime
+uploads/
+logs/
+*.log
+*.pid
+
+# OS & éditeurs
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
