@@ -39,6 +39,7 @@ const App: ParentComponent = (props) => {
         >
           <nav>
             <A href="/me/profil">Mon profil</A>
+            <A href="/me/matches">Matchs</A>
             <button type="button" class="link" onClick={() => void logout()}>
               Déconnexion
             </button>

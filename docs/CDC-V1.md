@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Version** | 1.1 (2026-10-28 : décisions §13 tranchées — nom « TiPiment », vérification email obligatoire, fuseau Europe/Paris) |
+| **Version** | 1.2 (2026-10-30 : §8 corrigé — le bonus super-like s'applique au super-like REÇU (l'auteur passe en tête, F3), pas au super-like envoyé ; distance-km reportée au jalon géo (centroïdes communes) — filtre âge/genre/intention restent en M2) |
 | **Date** | 2026-10-28 |
 | **Statut** | Brouillon — à valider (décisions ouvertes en §13) |
 | **Nom de travail** | « TiPiment » ⚠️ collision connue avec ti'Piment.fr (rencontres + restaurant local) — vérifications INPI + stores + domaines (.fr/.re) OBLIGATOIRES avant tout design/comm |
@@ -408,7 +408,7 @@ score(profile p, requester r) = 100
   + 20 × (≥ 2 photos ?)
   + 10 × (photo 1 modérée < 7 jours ?)
   − distance_km_bucket :  ≤10 km→0 · ≤30 km→5 · ≤60 km→10 · ≤160 km→20 · au-delà → déjà exclu par le filtre distance de r
-  + 15  si r a envoyé un super-like à p    [priorisation : p placé en tête du deck de r]
+  + 15  si p a envoyé un super-like à r (recent, 7 j)   [F3 : l'auteur passe en tête du deck]
   × 1.5  si profil < 72 h (boost découverte)
 
 Exclusions absolues avant calcul : bloqués, bannis, profils non publiés/non vérifiés email,

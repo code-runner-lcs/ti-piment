@@ -3,6 +3,7 @@ import { IsNull, MoreThan } from "typeorm";
 import { AppDataSource } from "../data-source";
 import { AppError } from "../http/app-error";
 import { RefreshToken } from "../entities/refresh-token.entity";
+import { User } from "../entities/user.entity";
 import { config } from "../config";
 import type { SessionUser } from "@tipiment/shared";
 
@@ -70,6 +71,8 @@ export async function rotate(plain: string, userAgent?: string): Promise<{ user:
   await repo().save(row);
   const user = row.user;
   if (!user || user.passwordHash === "!") throw AppError.unauthorized("Session invalide");
+  user.lastActiveAt = new Date();
+  await AppDataSource.getRepository(User).update(user.id, { lastActiveAt: user.lastActiveAt });
   const { plain: nextPlain } = await issueFamily(row.userId, row.familyId, userAgent ?? row.userAgent ?? undefined);
   return { user: user.toSessionUser(), nextPlain };
 }

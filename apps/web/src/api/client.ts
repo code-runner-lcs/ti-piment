@@ -6,7 +6,7 @@ import {
   type LoginInput,
   type PhotoDto,
   type PreferencesInput,
-  type ProfileBundle,
+  type DeckDto, type MatchDto, type ProfileBundle, type QuotasDto, type SwipeInput, type SwipeResultDto,
   type ProfileInput,
   type RegisterInput,
   type SessionUser,
@@ -76,4 +76,8 @@ export const api = {
   deletePhoto: (id: string) => request<{ status: string }>(`/api/me/photos/${id}`, { method: "DELETE" }),
   deleteMe: () => request<void>("/api/me", { method: "DELETE" }),
   hello: () => request<{ message: string }>("/api/me/hello"),
+  getDeck: () => request<DeckDto>("/api/deck"),
+  swipe: (input: SwipeInput) => request<SwipeResultDto>("/api/swipe", { method: "POST", body: input }),
+  getQuotas: () => request<QuotasDto>("/api/quotas"),
+  listMatches: () => request<MatchDto[]>("/api/matches"),
 };

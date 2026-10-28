@@ -29,6 +29,11 @@ export const config = {
     ttlDays: int(process.env.REFRESH_TTL_DAYS, 30), // CDC §4.2 : 30 j
     maxSessions: int(process.env.MAX_SESSIONS, 5),
   },
+  quotas: {
+    maxLikes: int(process.env.QUOTA_LIKES, 25), // CDC §F3 : 25 likes/jour
+    maxSuperlikes: int(process.env.QUOTA_SUPERLIKES, 1), // CDC §F3 : 1 super-like/jour
+    timezone: process.env.QUOTA_TZ ?? "Europe/Paris", // reset 00:00 locale (§13-8)
+  },
   photos: {
     uploadsDir: process.env.UPLOADS_DIR ?? "uploads", // résolu sous apps/api en dev
     maxBytes: int(process.env.PHOTO_MAX_BYTES, 8 * 1024 * 1024), // CDC §6 : ≤ 8 Mo

@@ -30,7 +30,7 @@ export async function register(input: RegisterInput): Promise<SessionUser> {
   }
 
   const passwordHash = await hash(input.password, { memoryCost: 19456, timeCost: 2, parallelism: 1 });
-  const user = repo.create({ email, passwordHash });
+  const user = repo.create({ email, passwordHash, birthDate: input.birthDate, lastActiveAt: new Date() });
   try {
     await repo.save(user);
   } catch (err) {
@@ -45,12 +45,15 @@ export async function register(input: RegisterInput): Promise<SessionUser> {
 /** Connexion → access token + cookie refresh (rotation) + plafond 5 sessions. */
 export async function login(input: LoginInput): Promise<{ accessToken: string; user: SessionUser; refreshPlain: string }> {
   const email = input.email.trim().toLowerCase();
-  const user = await AppDataSource.getRepository(User).findOne({ where: { email } });
+  const repo = AppDataSource.getRepository(User);
+  const user = await repo.findOne({ where: { email } });
   const { verify } = await import("@node-rs/argon2");
   if (!user || user.passwordHash === "!" || !(await verify(user.passwordHash, input.password))) {
     // Message générique unique : anti-énumération (CDC §4.3)
     throw new AppError(401, "INVALID_CREDENTIALS", "Identifiants invalides.");
   }
+  user.lastActiveAt = new Date();
+  await repo.save(user);
   await enforceMaxSessions(user.id);
   const { plain } = await issueFamily(user.id, undefined);
   return {

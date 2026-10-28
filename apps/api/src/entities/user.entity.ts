@@ -25,6 +25,14 @@ export class User {
   @Column("boolean", { name: "email_verified", default: false })
   emailVerified!: boolean;
 
+  /** Stockée serveur UNIQUEMENT pour l'âge calculé — jamais renvoyée au client (CDC §F1) */
+  @Column("date", { name: "birth_date", nullable: true })
+  birthDate!: string | null;
+
+  /** Mis à jour à chaque login/refresh — alimente le score « inactif > 14 jours » */
+  @Column("timestamptz", { name: "last_active_at", nullable: true })
+  lastActiveAt!: Date | null;
+
   @CreateDateColumn({ type: "timestamptz", name: "created_at" })
   createdAt!: Date;
 

@@ -1,5 +1,4 @@
-import { Check, Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { User } from "./user.entity";
+import { Check, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 export const INTENTIONS = ["relation_serieuse", "sortir_decouvrir", "a_voir"] as const;
 export const GENDERS = ["femme", "homme", "non_binaire", "autre"] as const;
@@ -12,11 +11,7 @@ export class Profile {
   id!: string;
 
   @Column("uuid", { name: "user_id", unique: true })
-  @JoinColumn()
   userId!: string;
-
-  @OneToOne(() => User, { onDelete: "NO ACTION" })
-  user!: User;
 
   @Column("varchar", { name: "display_name", length: 20 })
   displayName!: string;

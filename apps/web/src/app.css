@@ -45,3 +45,25 @@ fieldset { border:1px solid rgba(128,100,90,.35); border-radius:8px; display:fle
 button.danger { border-color:#d64545; color:#d64545; }
 select { font:inherit; padding:10px 12px; border-radius:8px; border:1px solid rgba(128,100,90,.4); background:transparent; color:inherit; }
 textarea { font:inherit; padding:10px 12px; border-radius:8px; border:1px solid rgba(128,100,90,.4); background:transparent; color:inherit; resize:vertical; }
+
+.discover { display:flex; flex-direction:column; gap:12px; }
+.quotas-bar { display:flex; gap:14px; font-weight:600; }
+.card { border:1px solid rgba(128,100,90,.35); border-radius:12px; padding:0 0 12px; overflow:hidden; display:flex; flex-direction:column; gap:8px; }
+.card img { width:100%; max-height:44vh; object-fit:cover; display:block; background:#e8e2dd; }
+@media (prefers-color-scheme: dark) { .card img { background:#241d1a; } }
+.card h2 { margin:0 12px; font-size:1.05rem; }
+.card .pill { align-self:flex-start; margin:0 12px; padding:3px 10px; border-radius:999px; border:1px solid currentColor; font-size:.85em; }
+.card .bio { margin:0 12px; opacity:.85; }
+.actions { display:flex; gap:10px; justify-content:center; padding:4px 12px 0; }
+.actions .pass { border-color:#888; }
+.actions .like { border-color:#2a9d4b; color:#2a9d4b; }
+.actions .super { border-color:#d9a404; color:#d9a404; font-size:1.1rem; }
+.super { position:absolute; top:10px; left:0; right:0; margin:auto; width:max-content; background:rgba(217,164,4,.15); border:1px solid #d9a404; padding:5px 10px; border-radius:8px; }
+.empty { display:flex; flex-direction:column; gap:10px; align-items:center; padding:24px 0; }
+.overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); display:grid; place-items:center; z-index:10; }
+.match-box { background:var(--color-card, #fff); color:#241f1c; padding:24px; border-radius:14px; display:flex; flex-direction:column; gap:10px; align-items:center; text-align:center; }
+@media (prefers-color-scheme: dark) { .match-box { background:#241d1a; color:#f0e9e5; } }
+.match-row { display:flex; gap:12px; align-items:center; padding:8px 0; border-bottom:1px solid rgba(128,100,90,.25); }
+.avatar { width:52px; height:52px; border-radius:50%; object-fit:cover; }
+.avatar.placeholder { background:rgba(128,100,90,.3); }
+.card { position:relative; }
