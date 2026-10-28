@@ -76,5 +76,6 @@ export async function cardFor(userId: string): Promise<CardDto | null> {
     mainUrl: photo ? `/uploads/${photo.pathMain}` : "",
     thumbUrl: photo ? `/uploads/${photo.pathThumb}` : "",
     superlikedMe: false,
+    distanceKm: null,
   };
 }

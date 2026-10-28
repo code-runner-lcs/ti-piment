@@ -32,6 +32,8 @@ interface MyCtx {
   myAge: number;
   ageMin: number;
   ageMax: number;
+  distanceKm: number | null;
+  myInsee: string | null;
   intentionPref: string | null;
 }
 
@@ -43,16 +45,18 @@ async function loadMyContext(userId: string): Promise<MyCtx> {
   const profile = await AppDataSource.getRepository(Profile).findOne({ where: { userId } });
   if (!profile) throw AppError.badRequest("Crée d'abord ton profil.", "PROFILE_REQUIRED");
   const rows = (await AppDataSource.query(
-    `SELECT COALESCE(age_min,18) AS age_min, COALESCE(age_max,99) AS age_max, intention
+    `SELECT COALESCE(age_min,18) AS age_min, COALESCE(age_max,99) AS age_max, distance_km, intention
      FROM preferences WHERE profile_id = $1`,
     [profile.id],
-  )) as unknown as Array<{ age_min: number; age_max: number; intention: string | null }>;
+  )) as unknown as Array<{ age_min: number; age_max: number; distance_km: number; intention: string | null }>;
   const prefs = rows[0];
   return {
     profile: { id: profile.id, gender: profile.gender, seeking: profile.seeking, intention: profile.intention },
     myAge: ageFrom(user.birthDate),
     ageMin: prefs ? Number(prefs.age_min) : 18,
     ageMax: prefs ? Number(prefs.age_max) : 99,
+    distanceKm: prefs ? Number(prefs.distance_km) : null,
+    myInsee: profile.communeInsee ?? null,
     intentionPref: prefs?.intention ?? null,
   };
 }
@@ -82,6 +86,8 @@ function privateDeck(): void {
         myAge: ctx.myAge,
         myAgeMin: ctx.ageMin,
         myAgeMax: ctx.ageMax,
+        myInsee: ctx.myInsee,
+        radiusKm: ctx.distanceKm,
         myIntentionPref: ctx.intentionPref,
         salt,
       });
