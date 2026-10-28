@@ -93,6 +93,7 @@ export function Discover(): JSX.Element {
                 {card().displayName} · {card().age} · {card().commune}
               </h2>
               <span class="pill">{INTENTION_LABEL[card().intention] ?? card().intention}</span>
+              <Show when={card().distanceKm !== null}><span class="pill">📍 {card().distanceKm} km</span></Show>
               <Show when={card().bio}>
                 <p class="bio">{card().bio}</p>
               </Show>

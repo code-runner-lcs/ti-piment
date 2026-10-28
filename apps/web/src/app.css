@@ -67,3 +67,7 @@ textarea { font:inherit; padding:10px 12px; border-radius:8px; border:1px solid 
 .avatar { width:52px; height:52px; border-radius:50%; object-fit:cover; }
 .avatar.placeholder { background:rgba(128,100,90,.3); }
 .card { position:relative; }
+
+.cities { display:flex; flex-wrap:wrap; gap:6px; }
+.city-option { padding:6px 10px; font-size:.9em; }
+.pills { display:flex; gap:8px; align-items:center; margin:0 12px; }

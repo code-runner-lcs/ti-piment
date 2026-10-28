@@ -1,5 +1,6 @@
 import {
   isApiError,
+  type CityDto,
   type AccessTokenPayload,
   type ApiOk,
   type ApiResult,
@@ -80,4 +81,6 @@ export const api = {
   swipe: (input: SwipeInput) => request<SwipeResultDto>("/api/swipe", { method: "POST", body: input }),
   getQuotas: () => request<QuotasDto>("/api/quotas"),
   listMatches: () => request<MatchDto[]>("/api/matches"),
+  searchCities: (q: string) =>
+    request<CityDto[]>(`/api/cities/search?q=${encodeURIComponent(q)}`),
 };

@@ -1,6 +1,6 @@
 import { createResource, createEffect, createSignal, Show, For, type JSX } from "solid-js";
 import { createStore } from "solid-js/store";
-import { type PhotoDto, type ProfileInput } from "@tipiment/shared";
+import { type CityDto, type PhotoDto, type ProfileInput } from "@tipiment/shared";
 import { api, ApiClientError } from "../api/client";
 import { clearSession, session } from "../store/session";
 
@@ -23,6 +23,7 @@ interface FormState {
   seeking: string;
   bio: string;
   commune: string;
+  communeInsee: string | null;
   ageMin: number;
   ageMax: number;
   distanceKm: number;
@@ -30,7 +31,7 @@ interface FormState {
 }
 
 const DEFAULTS: FormState = {
-  displayName: "", intention: "", gender: "", seeking: "", bio: "", commune: "",
+  displayName: "", intention: "", gender: "", seeking: "", bio: "", commune: "", communeInsee: null,
   ageMin: 18, ageMax: 99, distanceKm: 50, hydrated: false,
 };
 
@@ -41,6 +42,24 @@ export function Profile(): JSX.Element {
   const [saveErr, setSaveErr] = createSignal<string | null>(null);
   const [busy, setBusy] = createSignal(false);
   const [uploadErr, setUploadErr] = createSignal<string | null>(null);
+  const [cities, setCities] = createSignal<CityDto[]>([]);
+
+  const onCommuneInput = (v: string): void => {
+    setForm("commune", v);
+    setForm("communeInsee", null); // texte libre = INSEE inconnu (distance "—")
+    if (v.trim().length >= 2) {
+      void api.searchCities(v).then(setCities).catch(() => setCities([]));
+    } else {
+      setCities([]);
+    }
+  };
+
+  const pickCity = (c: CityDto): void => {
+    setForm("commune", c.name);
+    setForm("communeInsee", c.insee);
+    setCities([]);
+  };
+
   const [delWarn, setDelWarn] = createSignal(false);
 
   // hydratation une seule fois quand les données arrivent
@@ -54,6 +73,7 @@ export function Profile(): JSX.Element {
       seeking: b.profile?.seeking ?? "",
       bio: b.profile?.bio ?? "",
       commune: b.profile?.commune ?? "",
+      communeInsee: b.profile?.communeInsee ?? null,
       ageMin: b.preferences?.ageMin ?? 18,
       ageMax: b.preferences?.ageMax ?? 99,
       distanceKm: b.preferences?.distanceKm ?? 50,
@@ -67,9 +87,9 @@ export function Profile(): JSX.Element {
     setSaveErr(null);
     setSaveMsg(null);
     try {
-      const { displayName, intention, gender, seeking, bio, commune } = form;
+      const { displayName, intention, gender, seeking, bio, commune, communeInsee } = form;
       // les <select> bornent déjà les unions -> cast sûr
-      await api.saveProfile({ displayName, intention, gender, seeking, bio, commune } as ProfileInput);
+      await api.saveProfile({ displayName, intention, gender, seeking, bio, commune, communeInsee } as ProfileInput);
       await api.savePreferences({
         ageMin: Math.min(form.ageMin, form.ageMax),
         ageMax: Math.max(form.ageMin, form.ageMax),
@@ -152,8 +172,15 @@ export function Profile(): JSX.Element {
         </label>
         <label>
           Commune (affichée)
-          <input required minlength={2} maxlength={64} value={form.commune} onInput={(e) => setForm("commune", e.currentTarget.value)} />
+          <input required minlength={2} maxlength={64} value={form.commune} onInput={(e) => onCommuneInput(e.currentTarget.value)} autocomplete="off" />
         </label>
+        <Show when={cities().length > 0}>
+          <div class="cities">
+            <For each={cities()}>{(c) => (
+              <button type="button" class="city-option" onClick={() => pickCity(c)}>{c.label}</button>
+            )}</For>
+          </div>
+        </Show>
         <label>
           Bio (≤ 500 car., pas de liens ni réseaux sociaux)
           <textarea maxlength={500} rows={3} value={form.bio} onInput={(e) => setForm("bio", e.currentTarget.value)} />
