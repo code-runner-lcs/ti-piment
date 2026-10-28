@@ -6,7 +6,8 @@
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "migration:run": "tsx src/scripts/migrate.ts"
+    "migration:run": "tsx src/scripts/migrate.ts",
+    "seed": "tsx src/scripts/seed.ts"
   },
   "dependencies": {
     "@node-rs/argon2": "^2.0.2",
