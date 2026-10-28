@@ -3,7 +3,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { buildApp } from "../src/app";
 import { AppDataSource } from "../src/data-source";
 import { clearOutbox, readOutbox } from "../src/mailer/mailer";
-import { nextMidnightUtc } from "../src/services/quota.service";
+import { nextMidnightUtc, } from "../src/services/quota.service";
+import { haversineKm, resolveExactName } from "../src/services/cities.service";
 import { redisReady } from "../src/lib/redis";
 import type { Express } from "express";
 
@@ -30,7 +31,7 @@ afterAll(async () => {
 beforeEach(() => clearOutbox());
 
 /** Crée un utilisateur vérifié avec profil complet + 1 photo approuvée. Renvoie le token. */
-async function fullUser(name: string, kind: "femme" | "homme", seeking: "femme" | "homme" | "tous", birthDate = "1995-06-15"): Promise<string> {
+async function fullUser(name: string, kind: "femme" | "homme", seeking: "femme" | "homme" | "tous", birthDate = "1995-06-15", geo?: { commune: string; insee: string }): Promise<string> {
   clearOutbox(); // l'outbox est un module partagé entre fichiers — purge pour matcher NOTRE mail
   const email = `${name}-${uid()}@example.fr`;
   const reg = await request(app).post("/api/auth/register").send({ email, password: "motdepasse1", birthDate });
@@ -43,7 +44,8 @@ async function fullUser(name: string, kind: "femme" | "homme", seeking: "femme" 
   const loginRes = await request(app).post("/api/auth/login").send({ email, password: "motdepasse1" });
   const auth = { Authorization: `Bearer ${loginRes.body.data.accessToken}` };
   await request(app).put("/api/me/profile").set(auth).send({
-    displayName: name, intention: "a_voir", gender: kind, seeking, commune: "Paris", bio: null,
+    displayName: name, intention: "a_voir", gender: kind, seeking,
+    commune: geo?.commune ?? "Paris", communeInsee: geo?.insee ?? null, bio: null,
   });
   const up = await request(app).post("/api/me/photos").set(auth).attach("photo", PNG_1PX, { filename: "a.png" });
   expect(up.status).toBe(201);
@@ -187,3 +189,34 @@ describe("M2 — deck & swipe & match", () => {
   });
 });
 
+
+describe("M2.5 — géo", () => {
+  it("haversine : Reims ↔ Lille ≈ 107 km", () => {
+    const d = haversineKm(49.2583, 4.0317, 50.6292, 3.0573);
+    expect(d).toBeGreaterThan(155);
+    expect(d).toBeLessThan(175);
+  });
+
+  it("deck avec distance : rayon 30 km exclut Marseille (~48 km de Toulon), 160 km l'inclut", async () => {
+    // centroïdes en cache AVANT les profils (la CTE JOINe cities)
+    const toulon = await resolveExactName("Toulon");
+    const marseille = await resolveExactName("Marseille");
+    expect(toulon && marseille).toBeTruthy();
+
+    const xTok = await fullUser("Gina", "femme", "homme", "1995-06-15", { commune: "Toulon", insee: toulon!.insee });
+    await fullUser("Hugo", "homme", "femme", "1995-06-15", { commune: "Marseille", insee: marseille!.insee });
+
+    const auth = { Authorization: `Bearer ${xTok}` };
+    await request(app).put("/api/me/preferences").set(auth).send({ ageMin: 18, ageMax: 99, distanceKm: 30 });
+    const far = await request(app).get("/api/deck").set(auth);
+    const names = far.body.data.cards.map((c: { displayName: string }) => c.displayName);
+    expect(names).not.toContain("Hugo"); // ~48 km > 30
+
+    await request(app).put("/api/me/preferences").set(auth).send({ ageMin: 18, ageMax: 99, distanceKm: 160 });
+    const near = await request(app).get("/api/deck").set(auth);
+    const hugo = near.body.data.cards.find((c: { displayName: string }) => c.displayName === "Hugo");
+    expect(hugo).toBeTruthy();
+    expect(hugo.distanceKm).toBeGreaterThanOrEqual(45);
+    expect(hugo.distanceKm).toBeLessThanOrEqual(55);
+  });
+});
