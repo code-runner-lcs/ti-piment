@@ -31,6 +31,10 @@ export class Profile {
   @Column("varchar", { length: 64, nullable: true })
   commune!: string | null;
 
+  /** Code INSEE de la commune (centroïde pour la distance) — null si non résolu */
+  @Column("varchar", { name: "commune_insee", length: 8, nullable: true })
+  communeInsee!: string | null;
+
   @Column("timestamptz", { name: "completed_at", nullable: true })
   completedAt!: Date | null;
 

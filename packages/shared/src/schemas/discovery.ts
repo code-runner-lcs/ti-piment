@@ -19,6 +19,7 @@ export const CardDtoSchema = z.object({
   mainUrl: z.string(),
   thumbUrl: z.string(),
   superlikedMe: z.boolean(),
+  distanceKm: z.number().int().min(0).nullable(),
 });
 export type CardDto = z.infer<typeof CardDtoSchema>;
 
@@ -30,6 +31,17 @@ export const QuotasDtoSchema = z.object({
   resetsAt: z.string(),
 });
 export type QuotasDto = z.infer<typeof QuotasDtoSchema>;
+
+export const CityDtoSchema = z.object({
+  insee: z.string(),
+  name: z.string(),
+  label: z.string(),
+});
+export type CityDto = z.infer<typeof CityDtoSchema>;
+
+export const CitiesSearchSchema = z.object({
+  q: z.string().trim().min(2).max(64),
+});
 
 export const DeckDtoSchema = z.object({
   cards: z.array(CardDtoSchema),

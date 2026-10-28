@@ -57,6 +57,8 @@ export const ProfileSchema = z.object({
     .nullable()
     .refine((v) => !v || !containsForbiddenLink(v), "Pas de lien ni de réseaux sociaux dans la bio."),
   commune: z.string().trim().min(2).max(64),
+  /** INSEE choisi via l'autocomplétion — si null, la distance reste inconnue pour ce profil */
+  communeInsee: z.string().regex(/^\d{2,5}$/).optional().nullable(),
 });
 export type ProfileInput = z.infer<typeof ProfileSchema>;
 
@@ -86,6 +88,7 @@ export const ProfileDtoSchema = z.object({
   seeking: z.string(),
   bio: z.string().nullable(),
   commune: z.string().nullable(),
+  communeInsee: z.string().nullable(),
   emailVerified: z.boolean(),
   completed: z.boolean(),
 });
@@ -108,6 +111,7 @@ export const ProfileBundleSchema = z.object({
       seeking: z.string(),
       bio: z.string().nullable(),
       commune: z.string().nullable(),
+      communeInsee: z.string().nullable(),
       emailVerified: z.boolean(),
       completed: z.boolean(),
     })

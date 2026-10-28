@@ -38,12 +38,13 @@ export async function getProfileBundle(userId: string) {
 }
 
 export async function upsertProfile(userId: string, input: ProfileInput): Promise<Profile> {
+  const { communeInsee, ...rest } = input;
   let profile = await PROFILE_REPO().findOne({ where: { userId } });
   if (!profile) {
-    profile = PROFILE_REPO().create({ userId, ...input, completedAt: null });
+    profile = PROFILE_REPO().create({ userId, ...rest, communeInsee: communeInsee ?? null, completedAt: null });
     return PROFILE_REPO().save(profile);
   }
-  Object.assign(profile, input);
+  Object.assign(profile, { ...rest, communeInsee: communeInsee ?? profile.communeInsee });
   await recomputeCompletion(userId);
   return PROFILE_REPO().save(profile);
 }

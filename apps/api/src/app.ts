@@ -9,6 +9,7 @@ import { authRouter } from "./routes/auth.routes";
 import { meRouter } from "./routes/me.routes";
 import { adminRouter } from "./routes/admin.routes";
 import { discoveryRouter } from "./routes/discovery.routes";
+import { citiesRouter } from "./routes/cities.routes";
 
 const notFoundHandler = (_req: Request, res: Response): void => {
   res.status(404).json({ code: "NOT_FOUND", message: "Route inconnue" });
@@ -51,6 +52,7 @@ export async function buildApp(deps: AppDeps = {}): Promise<express.Express> {
 
   app.use("/api/auth", authRouter);
   app.use("/api/me", meRouter);
+  app.use("/api/cities", citiesRouter);
   app.use("/api", discoveryRouter);
   app.use("/api/admin", adminRouter);
 

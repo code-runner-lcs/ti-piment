@@ -46,6 +46,7 @@ meRouter.get("/profile", asyncRoute(async (req, res) => {
             seeking: bundle.profile.seeking,
             bio: bundle.profile.bio,
             commune: bundle.profile.commune,
+            communeInsee: bundle.profile.communeInsee,
             emailVerified: user.emailVerified,
             completed: bundle.completed,
           }
