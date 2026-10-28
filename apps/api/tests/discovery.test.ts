@@ -30,10 +30,10 @@ afterAll(async () => {
 beforeEach(() => clearOutbox());
 
 /** Crée un utilisateur vérifié avec profil complet + 1 photo approuvée. Renvoie le token. */
-async function fullUser(name: string, kind: "femme" | "homme", seeking: "femme" | "homme" | "tous"): Promise<string> {
+async function fullUser(name: string, kind: "femme" | "homme", seeking: "femme" | "homme" | "tous", birthDate = "1995-06-15"): Promise<string> {
   clearOutbox(); // l'outbox est un module partagé entre fichiers — purge pour matcher NOTRE mail
   const email = `${name}-${uid()}@example.fr`;
-  const reg = await request(app).post("/api/auth/register").send({ email, password: "motdepasse1", birthDate: "1995-06-15" });
+  const reg = await request(app).post("/api/auth/register").send({ email, password: "motdepasse1", birthDate });
   expect(reg.status).toBe(201);
   const link = readOutbox().find((m) => m.text.includes("/verify-email?token="))!;
   const token = link.text.match(/token=([\w.-]+)/)![1]!;
@@ -132,33 +132,40 @@ describe("M2 — deck & swipe & match", () => {
   });
 
   it("super-like : 1/jour — le 2e → 403 ; il place l'auteur en tête du deck", async () => {
-    // fixtures fraîches isolées : X (femme, cherche homme) + Y1/Y2 (hommes)
     const xTok = await fullUser("Xenia", "femme", "homme");
     const y1Tok = await fullUser("Yann", "homme", "femme");
-    await fullUser("Yves", "homme", "femme");
+    await fullUser("Yves", "homme", "femme", "1999-01-15"); // 27 ans
 
-    const deck = await request(app).get("/api/deck").set({ Authorization: `Bearer ${xTok}` });
-    expect(deck.body.data.cards.length).toBeGreaterThanOrEqual(2);
+    const xAuth = { Authorization: `Bearer ${xTok}` };
+    const deck = await request(app).get("/api/deck").set(xAuth);
     const deckCards: Array<{ profileId: string; displayName: string; superlikedMe: boolean }> = deck.body.data.cards;
     const yann = deckCards.find((c) => c.displayName === "Yann")!;
     const yves = deckCards.find((c) => c.displayName === "Yves")!;
-    expect(yann && yves).toBeTruthy();
+    expect(yann && yves).toBeTruthy(); // deux cibles valides pour le super-like
 
-    const s1 = await request(app).post("/api/swipe").set({ Authorization: `Bearer ${xTok}` })
-      .send({ targetProfileId: yann.profileId, action: "superlike" });
+    const s1 = await request(app).post("/api/swipe").set(xAuth).send({ targetProfileId: yann.profileId, action: "superlike" });
     expect(s1.status).toBe(200);
     expect(s1.body.data.quotas.superlikes).toBe(0);
 
-    // 2e super-like du jour → 403 (corps d'erreur {code,message} sans data)
-    const s2 = await request(app).post("/api/swipe").set({ Authorization: `Bearer ${xTok}` })
-      .send({ targetProfileId: yves.profileId, action: "superlike" });
+    const s2 = await request(app).post("/api/swipe").set(xAuth).send({ targetProfileId: yves.profileId, action: "superlike" });
     expect(s2.status).toBe(403);
     expect(s2.body.code).toBe("QUOTA_SUPERLIKES");
 
-    // Yann voit XENIA EN TÊTE de son deck avec le bandeau ⚡ (F3 : le reçu priorise)
+    // Yann voit Xenia EN TÊTE de son deck avec le bandeau ⚡ (F3 : le reçu priorise)
     const deckYann = await request(app).get("/api/deck").set({ Authorization: `Bearer ${y1Tok}` });
     expect(deckYann.body.data.cards[0]?.displayName).toBe("Xenia");
     expect(deckYann.body.data.cards[0]?.superlikedMe).toBe(true);
+
+    // Régression âge (le bug M2 : myAgeMin/myAgeMax mal cablés ne filtrait rien).
+    // NB : Yann a disparu du deck — Xenia l'a déjà superswipeé (<30 j, exclusion voulue).
+    // On crée Zach (30 ans, jamais swipé) pour prouver l'inclusion dans la fenêtre.
+    await fullUser("Zach", "homme", "femme", "1996-02-02");
+    await request(app).put("/api/me/preferences").set(xAuth).send({ ageMin: 28, ageMax: 99, distanceKm: 160 });
+    const deck2 = await request(app).get("/api/deck").set(xAuth);
+    const names = deck2.body.data.cards.map((c: { displayName: string }) => c.displayName);
+    expect(names).toContain("Zach"); // 30 ans ✓ dans [28..99]
+    expect(names).not.toContain("Yves"); // 27 ans < ageMin 28
+    expect(names).not.toContain("Yann"); // déjà superswipé (exclusion 30 j)
   });
 
   it("non-vérifié : deck refusé 403", async () => {

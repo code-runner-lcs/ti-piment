@@ -80,6 +80,8 @@ function privateDeck(): void {
         myGender: ctx.profile.gender,
         mySeeking: ctx.profile.seeking,
         myAge: ctx.myAge,
+        myAgeMin: ctx.ageMin,
+        myAgeMax: ctx.ageMax,
         myIntentionPref: ctx.intentionPref,
         salt,
       });

@@ -7,6 +7,8 @@ export interface DeckParams {
   myGender: string;
   mySeeking: string;
   myAge: number;
+  myAgeMin: number;
+  myAgeMax: number;
   myIntentionPref: string | null;
   salt: string;
 }
@@ -75,13 +77,13 @@ export async function getDeck(p: DeckParams): Promise<CardDto[]> {
        AND u.birth_date IS NOT NULL
        AND p.completed_at IS NOT NULL
        AND ph.approved_count > 0
-       AND ($5 = 'tous' OR p.gender = $5::text)
-       AND (p.seeking = 'tous' OR p.seeking = $6::text)
+       AND ($6 = 'tous' OR p.gender = $6::text)
+       AND (p.seeking = 'tous' OR p.seeking = $7::text)
        AND COALESCE(tp.age_min, 18) <= $2
        AND COALESCE(tp.age_max, 99) >= $2
        AND $3 <= date_part('year', age(now(), u.birth_date))::int
        AND $4 >= date_part('year', age(now(), u.birth_date))::int
-       AND ($7::varchar IS NULL OR $7::varchar = p.intention)
+       AND ($5::varchar IS NULL OR $5::varchar = p.intention)
        AND (tp.intention IS NULL OR tp.intention = $8::varchar)
        AND NOT EXISTS (
          SELECT 1 FROM swipes s WHERE s.swiper_profile_id = $9 AND s.target_profile_id = p.id
@@ -100,12 +102,12 @@ export async function getDeck(p: DeckParams): Promise<CardDto[]> {
      LIMIT 20`,
     [
       p.myUserId, // $1
-      p.myAge, // $2 : filtré par la fenêtre d'âge de CHACUN
-      p.myAge, // $3 : mon âge >= leur age_min
-      p.myAge, // $4 : mon âge <= leur age_max
-      p.mySeeking, // $5
-      p.myGender, // $6
-      p.myIntentionPref, // $7
+      p.myAge, // $2 : mon âge dans la fenêtre d'âge de CHACUN (tp)
+      p.myAgeMin, // $3 : age_min d'AUSSI <= leur âge
+      p.myAgeMax, // $4 : age_max d'AUSSI >= leur âge
+      p.myIntentionPref, // $5
+      p.mySeeking, // $6
+      p.myGender, // $7
       p.myIntentionPref, // $8
       p.myProfileId, // $9
       p.salt, // $10
