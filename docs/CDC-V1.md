@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Version** | 1.2 (2026-10-30 : §8 corrigé — le bonus super-like s'applique au super-like REÇU (l'auteur passe en tête, F3), pas au super-like envoyé ; distance-km reportée au jalon géo (centroïdes communes) — filtre âge/genre/intention restent en M2) |
+| **Version** | 1.3 (2026-10-31 : jalon géo livré — distance km via centroïdes INSEE (geo.api.gouv.fr, cache table cities), buckets §8 actés (≤10→0 · ≤30→5 · ≤60→10 · ≤160→20), filtre rayon des préférences opérationnel ; insee inconnu → distance non affichée, pénalité neutre) |
 | **Date** | 2026-10-28 |
 | **Statut** | Brouillon — à valider (décisions ouvertes en §13) |
 | **Nom de travail** | « TiPiment » ⚠️ collision connue avec ti'Piment.fr (rencontres + restaurant local) — vérifications INPI + stores + domaines (.fr/.re) OBLIGATOIRES avant tout design/comm |
