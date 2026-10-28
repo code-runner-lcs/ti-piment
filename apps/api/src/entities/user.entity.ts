@@ -32,6 +32,6 @@ export class User {
   updatedAt!: Date;
 
   toSessionUser(): SessionUser {
-    return { id: this.id, email: this.email, role: this.role };
+    return { id: this.id, email: this.email, role: this.role, emailVerified: this.emailVerified };
   }
 }

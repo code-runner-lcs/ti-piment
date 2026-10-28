@@ -8,8 +8,8 @@ const ISSUER = "tipiment-api";
 const AUDIENCE = "tipiment-web";
 
 export async function signAccessToken(user: SessionUser): Promise<string> {
-  return new SignJWT({ email: user.email, role: user.role })
-    .setProtectedHeader({ alg: "HS512" }) // CDC §10 : HS512
+  return new SignJWT({ email: user.email, role: user.role, email_verified: user.emailVerified })
+    .setProtectedHeader({ alg: "HS512" })
     .setSubject(user.id)
     .setIssuedAt()
     .setIssuer(ISSUER)
@@ -30,6 +30,10 @@ export async function verifyAccessToken(token: string): Promise<SessionUser> {
   if (!id || typeof email !== "string") {
     throw AppError.unauthorized("Token invalide");
   }
-  const role = payload.role === "admin" ? "admin" : "user";
-  return { id, email, role };
+  return {
+    id,
+    email,
+    role: payload.role === "admin" ? "admin" : "user",
+    emailVerified: payload.email_verified === true,
+  };
 }

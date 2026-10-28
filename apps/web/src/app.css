@@ -30,3 +30,18 @@ button:disabled { opacity: 0.55; cursor: default; }
 .muted { opacity: 0.7; }
 .error { color: #d64545; }
 .ok { color: #2a9d4b; }
+
+.topbar { display:flex; justify-content: space-between; align-items:center; gap:12px; margin-bottom:18px; }
+.topbar nav { display:flex; gap:10px; align-items:center; }
+button.link { border:none; background:none; color:inherit; text-decoration:underline; cursor:pointer; padding:0; }
+.profile { display:flex; flex-direction:column; gap:12px; }
+label { display:flex; flex-direction:column; gap:4px; }
+fieldset { border:1px solid rgba(128,100,90,.35); border-radius:8px; display:flex; gap:12px; }
+.banner { background: rgba(255, 200, 120, .18); border:1px solid rgba(200,140,40,.35); padding:8px 10px; border-radius:8px; }
+.photos { display:flex; flex-wrap:wrap; gap:10px; }
+.photo-card { display:flex; flex-direction:column; gap:4px; width:150px; }
+.photo-card img { width:150px; height:150px; object-fit:cover; border-radius:8px; }
+.badge-status { font-size:.8em; opacity:.8; }
+button.danger { border-color:#d64545; color:#d64545; }
+select { font:inherit; padding:10px 12px; border-radius:8px; border:1px solid rgba(128,100,90,.4); background:transparent; color:inherit; }
+textarea { font:inherit; padding:10px 12px; border-radius:8px; border:1px solid rgba(128,100,90,.4); background:transparent; color:inherit; resize:vertical; }

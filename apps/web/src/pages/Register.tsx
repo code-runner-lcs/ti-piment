@@ -16,8 +16,8 @@ export function Register(): JSX.Element {
     setError(null);
     try {
       await api.register({ email: email(), password: password(), birthDate: birthDate() });
-      // M1 : écran « Vérifie ton email pour commencer » — la vérification deviendra obligatoire (CDC §4.1)
-      navigate("/login", { replace: true });
+      // Décision V1.1 : vérification email obligatoire → écran dédié
+      navigate("/verify-email", { replace: true });
     } catch (err) {
       setError(err instanceof ApiClientError ? err.message : "Erreur réseau — réessaie.");
     } finally {

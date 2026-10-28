@@ -10,6 +10,7 @@ pnpm install
 docker compose up -d        # Postgres (5477) + Redis (6380)
 pnpm migration:run          # migrations TypeORM
 pnpm --filter @tipiment/api seed   # données de test (dev uniquement, idempotent)
+pnpm --filter @tipiment/api test   # 20 tests vitest+supertest (auth, refresh, rate-limit, gate)
 pnpm dev                    # api :3000 + web :5273
 ```
 
