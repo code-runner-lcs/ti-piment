@@ -165,6 +165,8 @@ function privateDeck(): void {
               id: match.id,
               otherProfile: {
                 displayName: card?.displayName ?? target.displayName,
+                userId: targetUser.id,
+                profileId: target.id,
                 thumbUrl: card?.thumbUrl ?? null,
               },
               created_at: match.createdAt.toISOString(),

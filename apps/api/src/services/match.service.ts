@@ -1,6 +1,8 @@
 import type { CardDto, MatchDto } from "@tipiment/shared";
 import { AppDataSource } from "../data-source";
 import { Match } from "../entities/match.entity";
+import { Message } from "../entities/message.entity";
+import { Block } from "../entities/block.entity";
 import { Profile } from "../entities/profile.entity";
 import { Photo } from "../entities/photo.entity";
 import { User } from "../entities/user.entity";
@@ -33,7 +35,7 @@ export async function listMatches(userId: string): Promise<MatchDto[]> {
     `SELECT m.id,
             m.created_at,
             CASE WHEN m.user_a_id = $1 THEN m.user_b_id ELSE m.user_a_id END AS other_user_id,
-            p.display_name,
+            p.id AS other_profile_id, p.display_name,
             ph.path_thumb
      FROM matches m
      JOIN profiles p ON p.user_id = (CASE WHEN m.user_a_id = $1 THEN m.user_b_id ELSE m.user_a_id END)
@@ -45,13 +47,42 @@ export async function listMatches(userId: string): Promise<MatchDto[]> {
      WHERE m.user_a_id = $1 OR m.user_b_id = $1
      ORDER BY m.created_at DESC`,
     [userId],
-  )) as unknown as Array<{ id: string; created_at: string; display_name: string; path_thumb: string | null }>;
+  )) as unknown as Array<{ id: string; created_at: string; other_user_id: string; other_profile_id: string; display_name: string; path_thumb: string | null }>;
 
   return rows.map((r) => ({
     id: r.id,
-    otherProfile: { displayName: r.display_name, thumbUrl: r.path_thumb ? `/uploads/${r.path_thumb}` : null },
+    otherProfile: {
+      displayName: r.display_name,
+      thumbUrl: r.path_thumb ? `/uploads/${r.path_thumb}` : null,
+      userId: r.other_user_id,
+      profileId: r.other_profile_id,
+    },
     created_at: new Date(r.created_at).toISOString(),
   }));
+}
+
+/** Renvoie le match si l'utilisateur en fait partie, sinon null. */
+export async function getMatchForUser(matchId: string, userId: string): Promise<Match | null> {
+  const m = await AppDataSource.getRepository(Match).findOne({ where: { id: matchId } });
+  if (!m || (m.userAId !== userId && m.userBId !== userId)) return null;
+  return m;
+}
+
+export function otherOf(m: Match, userId: string): string {
+  return m.userAId === userId ? m.userBId : m.userAId;
+}
+
+export async function isBlockedBetween(a: string, b: string): Promise<boolean> {
+  return AppDataSource.getRepository(Block).exists({
+    where: [
+      { blockerUserId: a, blockedUserId: b },
+      { blockerUserId: b, blockedUserId: a },
+    ],
+  });
+}
+
+export function messageToDto(m: Message) {
+  return { id: m.id, matchId: m.matchId, senderId: m.senderId, body: m.body, createdAt: m.createdAt.toISOString() };
 }
 
 /** La carte de l'autre, pour l'écran de match (réutilise les composants du deck). */
