@@ -55,8 +55,43 @@ export const MatchDtoSchema = z.object({
   otherProfile: z.object({
     displayName: z.string(),
     thumbUrl: z.string().nullable(),
+    userId: z.string().uuid(),
+    profileId: z.string().uuid(),
   }),
   created_at: z.string(),
+});
+
+export const REPORT_REASONS = ["faux_profil", "contenu_inapproprie", "harcelement", "escroquerie", "mineur", "autre"] as const;
+
+export const ReportSchema = z.object({
+  targetProfileId: z.string().uuid(),
+  reason: z.enum(REPORT_REASONS),
+  detail: z.string().max(500).optional().nullable(),
+});
+export type ReportInput = z.infer<typeof ReportSchema>;
+
+export const BlockSchema = z
+  .object({ profileId: z.string().uuid().optional(), userId: z.string().uuid().optional() })
+  .refine((v) => Boolean(v.profileId ?? v.userId), "Cible manquante");
+
+export const SendMessageSchema = z.object({
+  clientUuid: z.string().uuid(),
+  body: z.string().trim().min(1).max(1000),
+});
+export type SendMessageInput = z.infer<typeof SendMessageSchema>;
+
+export const MessageDtoSchema = z.object({
+  id: z.string().uuid(),
+  matchId: z.string().uuid(),
+  senderId: z.string().uuid(),
+  body: z.string(),
+  createdAt: z.string(),
+});
+export type MessageDto = z.infer<typeof MessageDtoSchema>;
+
+export const MessageListDtoSchema = z.object({
+  messages: z.array(MessageDtoSchema),
+  nextCursor: z.string().nullable(),
 });
 export type MatchDto = z.infer<typeof MatchDtoSchema>;
 
