@@ -10,6 +10,7 @@ import { ForgotPassword } from "./pages/ForgotPassword";
 import { ResetPassword } from "./pages/ResetPassword";
 import { Profile } from "./pages/Profile";
 import { Matches } from "./pages/Matches";
+import { Chat } from "./pages/Chat";
 import "./app.css";
 
 render(
@@ -22,6 +23,7 @@ render(
       <Route path="/reset-password" component={ResetPassword} />
       <Route path="/me/profil" component={Profile} />
       <Route path="/me/matches" component={Matches} />
+      <Route path="/me/matches/:id" component={Chat} />
       <Route path="/" component={Discover} />
     </Router>
   ),

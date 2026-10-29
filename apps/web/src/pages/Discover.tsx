@@ -85,6 +85,9 @@ export function Discover(): JSX.Element {
         >
           {(card) => (
             <article class="card">
+              <Show when={!card().superlikedMe}>
+                <button type="button" class="report-link" onClick={() => { const target = current(); if (!target) return; void api.submitReport({ targetProfileId: target.profileId, reason: "contenu_inapproprie", detail: "Rapporté depuis la carte" }).catch(() => undefined); setError("Signalement transmis — merci."); }}>Signaler</button>
+              </Show>
               <Show when={card().superlikedMe}>
                 <div class="super">⚡ T'a envoyé un super-like</div>
               </Show>

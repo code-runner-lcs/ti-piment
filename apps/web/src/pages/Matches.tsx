@@ -18,19 +18,19 @@ export function Matches(): JSX.Element {
       <Show when={!matches.loading} fallback={<p class="muted">Chargement…</p>}>
         <Show when={(matches() ?? []).length > 0} fallback={<p class="muted">Aucun match pour l'instant — retourne swiper !</p>}>
           <For each={matches()}>{(m) => (
-            <div class="match-row">
+            <a class="match-row" href={`/me/matches/${m.id}`}>
               <Show when={m.otherProfile.thumbUrl} fallback={<div class="avatar placeholder" />}>
                 <img class="avatar" src={m.otherProfile.thumbUrl!} alt="" />
               </Show>
               <div>
                 <strong>{m.otherProfile.displayName}</strong>
-                <p class="muted">Matché le {new Date(m.created_at).toLocaleDateString("fr-FR")}</p>
+                <p class="muted">Matché le {new Date(m.created_at).toLocaleDateString("fr-FR")} — ouvrir le chat</p>
               </div>
-            </div>
+            </a>
           )}</For>
         </Show>
       </Show>
-      <p class="muted">Le chat arrive en M2.5 😉</p>
+
     </main>
   );
 }

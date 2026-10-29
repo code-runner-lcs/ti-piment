@@ -9,6 +9,7 @@ export default defineConfig({
     proxy: {
       "/api": { target: "http://localhost:3000", changeOrigin: false },
       "/uploads": { target: "http://localhost:3000", changeOrigin: false },
+      "/socket.io": { target: "http://localhost:3000", changeOrigin: false, ws: true },
     },
   },
 });

@@ -1,6 +1,6 @@
 import {
   isApiError,
-  type CityDto,
+  type CityDto, type MessageDto, type ReportInput,
   type AccessTokenPayload,
   type ApiOk,
   type ApiResult,
@@ -83,4 +83,16 @@ export const api = {
   listMatches: () => request<MatchDto[]>("/api/matches"),
   searchCities: (q: string) =>
     request<CityDto[]>(`/api/cities/search?q=${encodeURIComponent(q)}`),
+  listMessages: (matchId: string, cursor: string | null) =>
+    request<{ messages: MessageDto[]; nextCursor: string | null; frozen: boolean }>(
+      `/api/matches/${matchId}/messages${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`,
+    ),
+  sendMessageRest: (matchId: string, clientUuid: string, body: string) =>
+    request<MessageDto>(`/api/matches/${matchId}/messages`, { method: "POST", body: { clientUuid, body } }),
+  blockUser: (target: { userId?: string; profileId?: string }) =>
+    request<{ status: string }>("/api/blocks", { method: "POST", body: target }),
+  unblockUser: (profileId: string) =>
+    request<{ status: string }>(`/api/blocks/${profileId}`, { method: "DELETE" }),
+  submitReport: (input: ReportInput) =>
+    request<{ status: string; sla: string }>("/api/reports", { method: "POST", body: input }),
 };
